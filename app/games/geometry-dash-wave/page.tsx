@@ -7,8 +7,8 @@ import { Metadata } from "next";
 // 定义 generateMetadata 函数
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: siteConfig.title,
-    description: 'Play the best free online geometry dash wave games on ScratchGames.info. No registration required!',
+    title: 'scratch games geometry dash wave - ScratchGames.info',
+    description: 'Play the best free online geometry dash wave scratch games on ScratchGames.info. No registration required!',
     alternates: {
       canonical: `${siteConfig.url}/geometry-dash-wave`,
     },

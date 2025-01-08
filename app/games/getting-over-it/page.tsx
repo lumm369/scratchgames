@@ -7,8 +7,8 @@ import { Metadata } from "next";
 // 定义 generateMetadata 函数
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: siteConfig.title,
-    description: 'Play the best free online getting over it games on ScratchGames.info. No registration required!',
+    title: 'scratch games getting over it - ScratchGames.info',
+    description: 'Play the best free online getting over it scratch games on ScratchGames.info. No registration required!',
     alternates: {
       canonical: `${siteConfig.url}/getting-over-it`,
     },

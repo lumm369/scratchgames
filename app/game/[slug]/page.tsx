@@ -10,8 +10,8 @@ export async function generateMetadata(props: { params: Props }) {
   const { params } = await props.params;
   const game = await getGameBySlug(params.slug);
   return {
-    title: `${siteConfig.title} - ${game?.title}`,
-    description: 'Play the best free online games on ScratchGames.info. No registration required!',
+    title: `ScratchGames.info - ${game?.title}`,
+    description: 'Play the best free online scratch games on ScratchGames.info. No registration required!',
     alternates: {
       canonical: `${siteConfig.url}/game/${game?.id}`,
     },

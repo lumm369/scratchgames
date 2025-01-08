@@ -7,8 +7,8 @@ import { Metadata } from "next";
 // 定义 generateMetadata 函数
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: siteConfig.title,
-    description: 'Play the best free online pen football games on ScratchGames.info. No registration required!',
+    title: 'scratch games pen football - ScratchGames.info',
+    description: 'Play the best free online pen football scratch games on ScratchGames.info. No registration required!',
     alternates: {
       canonical: `${siteConfig.url}/pen-football`,
     },
