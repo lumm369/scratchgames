@@ -67,7 +67,7 @@ export async function getGames(mode: string = DEFAULT_MODE, page: number = 0) {
       }
     );
 
-    console.log('Response status:', response.ok);
+    console.log('getGames Response status:', response.ok);
 
     if (!response.ok) {
       throw new Error('Failed to get game data');
@@ -122,6 +122,7 @@ export async function getRecentGames(page: number = 0) {
 export async function searchGames(query: string, page: number = 0): Promise<{ success: boolean; data?: Game[]; error?: string }> {
   try {
     const response = await fetch(buildSearchApiUrl(query, page));
+    console.log('searchGames Response status:', response.ok);
     
     if (!response.ok) {
       throw new Error('Failed to fetch search results');
