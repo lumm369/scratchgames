@@ -20,15 +20,13 @@ export async function generateMetadata(): Promise<Metadata> {
 
 
 type BlogPageProps = Promise<{
-  searchParams: {
-    page?: string;
-    category?: string;
-    tag?: string;
-  };
+  page?: string;
+  category?: string;
+  tag?: string;
 }>
 
 export default async function BlogPage(props: { searchParams: BlogPageProps }) {
-  const { searchParams } = await props.searchParams;
+  const searchParams = await props.searchParams;
   const { items, categories, tags, totalPages }: BlogResponse = await getBlogPosts({
     page: Number(searchParams.page) || 1,
     category: searchParams.category,

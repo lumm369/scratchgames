@@ -2,12 +2,21 @@ import { getGameBySlug, getRelatedGames } from '@/actions/games';
 import Breadcrumb from '@/components/bread-crumb';
 import GameInfo from '@/components/game/game-info';
 import RelatedGames from '@/components/game/related-games';
-import { Metadata } from "next";
 import { siteConfig } from "@/config/site";
 
+type Props = Promise<{
+  slug: string;
+  prepage?: string;
+}>
+
+interface breadcrumbItem {
+  label: string;
+  href: string;
+}
+
 // 定义 generateMetadata 函数
-export async function generateMetadata(props: { params: Props }) {
-  const { params } = await props.params;
+export async function generateMetadata(props: { params: Props } ) {
+  const params = await props.params;
   const game = await getGameBySlug(params.slug);
   return {
     title: `ScratchGames.info - ${game?.title}`,
@@ -18,23 +27,11 @@ export async function generateMetadata(props: { params: Props }) {
   };
 }
 
-type Props = Promise<{
-  params: {
-    slug: string;
-  };
-  searchParams: {
-    prepage?: string;
-  };
-}>
-
-interface breadcrumbItem {
-  label: string;
-  href: string;
-}
-
 export default async function GamePage(props: { params: Props, searchParams: Props }) {
-  const { params } = await props.params;
-  const { searchParams } = await props.searchParams;
+  const params = await props.params;
+  const searchParams = await props.searchParams;
+  console.log('params------', params)
+  console.log('searchParams------', searchParams)
   const game = await getGameBySlug(params.slug);
   const relatedGames = await getRelatedGames(params.slug);
   let breadLabel = ''

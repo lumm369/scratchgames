@@ -6,14 +6,11 @@ import { Metadata } from "next";
 import { siteConfig } from "@/config/site";
 
 type Props = Promise<{
-  params: {
-    slug: string;
-  };
-  searchParams: { [key: string]: string | string[] | undefined };
+  slug: string;
 }>
 
 export async function generateMetadata(props: { params: Props }) {
-  const { params } = await props.params;
+  const params = await props.params;
   const post = await getBlogPost(params.slug);
   if (!post) return { title: 'Post Not Found' };
 
@@ -27,7 +24,7 @@ export async function generateMetadata(props: { params: Props }) {
 }
 
 export default async function BlogPostPage(props: { params: Props }) {
-  const { params } = await props.params;
+  const params = await props.params;
   const post = await getBlogPost(params.slug);
   if (!post) notFound();
 

@@ -58,41 +58,41 @@ export async function getGames(mode: string = DEFAULT_MODE, page: number = 0) {
     const url = buildApiUrl(mode as ScratchMode, page);
     console.log('Fetching data from:', url);
     const response = await fetch(
-      buildApiUrl(mode as ScratchMode, page),
+      url,
       {
         headers: {
           'Content-Type': 'application/json',
-        },
-        next: { revalidate: 3600 } // 1小时缓存
+        }
       }
     );
 
-    console.log('getGames Response status:', response.ok);
+    console.log('Response status:', response.status);
+    console.log('Response statusText:', response.statusText);
 
     if (!response.ok) {
-      throw new Error('Failed to get game data');
+      const errorText = await response.text();
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+    } else {
+      const data = await response.json();
+      // 转换数据格式
+      const formattedGames: Game[] = data.map((game: any) => ({
+        id: game.id,
+        title: cleanTitle(game.title),
+        description: game.description,
+        instructions: game.instructions,
+        image: game.image,
+        author: game.author.username,
+        views: formatNumber(game.stats.views),
+        loves: formatNumber(game.stats.loves),
+        favorites: formatNumber(game.stats.favorites),
+        url: `https://scratch.mit.edu/projects/${game.id}/embed`,
+      }));
+  
+      return {
+        success: true,
+        data: formattedGames
+      };
     }
-
-    const data = await response.json();
-
-    // 转换数据格式
-    const formattedGames: Game[] = data.map((game: any) => ({
-      id: game.id,
-      title: cleanTitle(game.title),
-      description: game.description,
-      instructions: game.instructions,
-      image: game.image,
-      author: game.author.username,
-      views: formatNumber(game.stats.views),
-      loves: formatNumber(game.stats.loves),
-      favorites: formatNumber(game.stats.favorites),
-      url: `https://scratch.mit.edu/projects/${game.id}/embed`,
-    }));
-
-    return {
-      success: true,
-      data: formattedGames
-    };
   } catch (error) {
     console.error('Failed to get game data:', error);
     return {
@@ -123,25 +123,29 @@ export async function searchGames(query: string, page: number = 0): Promise<{ su
   try {
     const response = await fetch(buildSearchApiUrl(query, page));
     console.log('searchGames Response status:', response.ok);
+
+    console.log('Response status:', response.status);
+    console.log('Response statusText:', response.statusText);
     
     if (!response.ok) {
-      throw new Error('Failed to fetch search results');
+      const errorText = await response.text();
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+    } else {
+      const data = await response.json();
+      return {
+        success: true,
+        data: data.map((game: any) => ({
+          id: game.id,
+          title: cleanTitle(game.title),
+          image: game.image,
+          author: game.author.username,
+          views: formatNumber(game.stats.views),
+          loves: formatNumber(game.stats.loves),
+          favorites: formatNumber(game.stats.favorites)
+        }))
+      }
     }
 
-    const data = await response.json();
-    
-    return {
-      success: true,
-      data: data.map((game: any) => ({
-        id: game.id,
-        title: cleanTitle(game.title),
-        image: game.image,
-        author: game.author.username,
-        views: formatNumber(game.stats.views),
-        loves: formatNumber(game.stats.loves),
-        favorites: formatNumber(game.stats.favorites)
-      }))
-    };
   } catch (error) {
     console.error('Error searching games:', error);
     return {
