@@ -43,6 +43,12 @@ function formatNumber(num: number): string {
   return (num / 1000000).toFixed(1) + 'm';
 }
 
+interface ApiResponse<T> {
+  success: boolean
+  data: T[]
+  error?: string
+}
+
 export type Game = {
   id: number;
   title: string;
@@ -56,7 +62,7 @@ export type Game = {
   url: string;
 };
 
-export async function getGames(mode: string = DEFAULT_MODE, page: number = 0) {
+export async function getGames(mode: string = DEFAULT_MODE, page: number = 0): Promise<ApiResponse<Game>> {
   const cacheKey = `${page}`
   try {
     // 尝试获取缓存
@@ -64,7 +70,7 @@ export async function getGames(mode: string = DEFAULT_MODE, page: number = 0) {
 
     if (cachedData) {
       console.log('使用缓存数据 getGames') // 添加日志
-      return cachedData
+      return cachedData as ApiResponse<Game>
     }
     const url = buildApiUrl(mode as ScratchMode, page);
     console.log('获取数据 getGames，接口路径：', url);
@@ -94,7 +100,7 @@ export async function getGames(mode: string = DEFAULT_MODE, page: number = 0) {
         url: `https://scratch.mit.edu/projects/${game.id}/embed`,
       }));
   
-      const result = { success: true, data: formattedGames }
+      const result = { success: true, data: formattedGames, error: '' }
     
       // 存入缓存
       await cache.set('games', cacheKey, result, mode)
@@ -104,37 +110,30 @@ export async function getGames(mode: string = DEFAULT_MODE, page: number = 0) {
     console.error('getGames 失败 error', error);
     // 使用过期缓存
     const cachedData = await cache.get('games', cacheKey, mode)
-
-    if (cachedData) {
-      console.log('使用过期缓存') // 添加日志
-      return cachedData
-    }
-
-    return { success: false, data: [], error: 'Failed to get game data' }
+    return cachedData as ApiResponse<Game>
   }
 }
 
 // popular games
-export async function getPopularGames(page: number = 0) {
+export async function getPopularGames(page: number = 0): Promise<ApiResponse<Game>> {
   return getGames('popular', page);
 }
 
 // trending games
-export async function getTrendingGames(page: number = 0) {
+export async function getTrendingGames(page: number = 0): Promise<ApiResponse<Game>> {
   return getGames('trending', page);
 }
 
 // recent games
-export async function getRecentGames(page: number = 0) {
+export async function getRecentGames(page: number = 0): Promise<ApiResponse<Game>> {
   return getGames('recent', page);
 }
 
 // 搜索游戏接口
-export async function searchGames(query: string, page: number = 0) {
-  const cacheKey = `${query}-${page}`
+export async function searchGames(query: string, page: number = 0): Promise<ApiResponse<Game>> {
   try {
     const cachedData = await cache.get('search', '0', undefined, query)
-    if (cachedData) return cachedData
+    if (cachedData) return cachedData as ApiResponse<Game>
 
     const response = await fetch(buildSearchApiUrl(query, page));
 
@@ -157,7 +156,7 @@ export async function searchGames(query: string, page: number = 0) {
         favorites: formatNumber(game.stats.favorites)
       }));
   
-      const result = { success: true, data: formattedGames }
+      const result = { success: true, data: formattedGames, error: '' }
     
       // 存入缓存
       await cache.set('search', '0', result, undefined, query)
@@ -168,7 +167,7 @@ export async function searchGames(query: string, page: number = 0) {
   } catch (error) {
     console.error('searchGames 失败 error：', error);
     const cachedData = await cache.get('search', '0', undefined, query)
-    return cachedData || { success: false, error: 'search failed' }
+    return cachedData as ApiResponse<Game> || { success: false, error: 'search failed', data: [] }
   }
 }
 
