@@ -60,7 +60,7 @@ export async function getBlogPosts({
       totalPages: Math.ceil(filteredPosts.length / postsPerPage)
     };
   } catch (error) {
-    console.error('Failed to fetch blog posts:', error);
+    console.error('加载博客列表失败 error：', error);
     return {
       items: [],
       categories: [],
@@ -87,7 +87,7 @@ export async function getBlogPost(slug: string): Promise<BlogPost | null> {
       ...data,
     } as BlogPost;
   } catch (error) {
-    console.error(`Failed to get blog post: ${slug}`, error);
+    console.error(`获取单个博客失 error：${slug}`, error);
     return null;
   }
 }

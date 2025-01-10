@@ -1,4 +1,4 @@
-import { getGameBySlug, getRelatedGames } from '@/actions/games';
+import { getGameBySlug, getRelatedGames, Game } from '@/actions/games';
 import Breadcrumb from '@/components/bread-crumb';
 import GameInfo from '@/components/game/game-info';
 import RelatedGames from '@/components/game/related-games';
@@ -17,12 +17,13 @@ interface breadcrumbItem {
 // 定义 generateMetadata 函数
 export async function generateMetadata(props: { params: Props } ) {
   const params = await props.params;
-  const game = await getGameBySlug(params.slug);
+  const game = await getGameBySlug(params.slug) as Game;
+
   return {
-    title: `ScratchGames.info - ${game?.title}`,
+    title: `ScratchGames.info - ${game.title}`,
     description: 'Play the best free online scratch games on ScratchGames.info. No registration required!',
     alternates: {
-      canonical: `${siteConfig.url}/game/${game?.id}`,
+      canonical: `${siteConfig.url}/game/${game.id}`,
     },
   };
 }
@@ -30,10 +31,10 @@ export async function generateMetadata(props: { params: Props } ) {
 export default async function GamePage(props: { params: Props, searchParams: Props }) {
   const params = await props.params;
   const searchParams = await props.searchParams;
-  console.log('params------', params)
-  console.log('searchParams------', searchParams)
-  const game = await getGameBySlug(params.slug);
-  const relatedGames = await getRelatedGames(params.slug);
+  console.log('GamePage 参数 params', params)
+  console.log('GamePage 参数 searchParams', searchParams)
+  const game = await getGameBySlug(params.slug) as Game;
+  const relatedGames = await getRelatedGames(params.slug) as Game[];
   let breadLabel = ''
   let breadcrumbItems = [] as breadcrumbItem[];
   

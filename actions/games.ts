@@ -1,4 +1,7 @@
 'use server';
+import { CacheManager } from './cache-utils'
+
+const cache = new CacheManager()
 
 const SCRATCH_API = 'https://api.scratch.mit.edu/explore/projects';
 
@@ -54,24 +57,27 @@ export type Game = {
 };
 
 export async function getGames(mode: string = DEFAULT_MODE, page: number = 0) {
+  const cacheKey = `${page}`
   try {
-    const url = buildApiUrl(mode as ScratchMode, page);
-    console.log('Fetching data from:', url);
-    const response = await fetch(
-      url,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      }
-    );
+    // 尝试获取缓存
+    const cachedData = await cache.get('games', cacheKey, mode)
 
-    console.log('Response status:', response.status);
-    console.log('Response statusText:', response.statusText);
+    if (cachedData) {
+      console.log('使用缓存数据 getGames') // 添加日志
+      return cachedData
+    }
+    const url = buildApiUrl(mode as ScratchMode, page);
+    console.log('获取数据 getGames，接口路径：', url);
+    const response = await fetch(url, {
+      headers: { 'Content-Type': 'application/json' },
+      // 添加缓存
+    })
+
+    console.log('getGames 接口状态码:', response.status);
+    console.log('getGames 接口状态说明:', response.statusText);
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      throw new Error(`HTTP error! status: ${response.status}`);
     } else {
       const data = await response.json();
       // 转换数据格式
@@ -88,18 +94,23 @@ export async function getGames(mode: string = DEFAULT_MODE, page: number = 0) {
         url: `https://scratch.mit.edu/projects/${game.id}/embed`,
       }));
   
-      return {
-        success: true,
-        data: formattedGames
-      };
+      const result = { success: true, data: formattedGames }
+    
+      // 存入缓存
+      await cache.set('games', cacheKey, result, mode)
+      return result
     }
   } catch (error) {
-    console.error('Failed to get game data:', error);
-    return {
-      success: false,
-      data: [],
-      error: 'Failed to get game data'
-    };
+    console.error('getGames 失败 error', error);
+    // 使用过期缓存
+    const cachedData = await cache.get('games', cacheKey, mode)
+
+    if (cachedData) {
+      console.log('使用过期缓存') // 添加日志
+      return cachedData
+    }
+
+    return { success: false, data: [], error: 'Failed to get game data' }
   }
 }
 
@@ -119,63 +130,68 @@ export async function getRecentGames(page: number = 0) {
 }
 
 // 搜索游戏接口
-export async function searchGames(query: string, page: number = 0): Promise<{ success: boolean; data?: Game[]; error?: string }> {
+export async function searchGames(query: string, page: number = 0) {
+  const cacheKey = `${query}-${page}`
   try {
-    const response = await fetch(buildSearchApiUrl(query, page));
-    console.log('searchGames Response status:', response.ok);
+    const cachedData = await cache.get('search', '0', undefined, query)
+    if (cachedData) return cachedData
 
-    console.log('Response status:', response.status);
-    console.log('Response statusText:', response.statusText);
+    const response = await fetch(buildSearchApiUrl(query, page));
+
+    console.log('searchGames 接口状态码：', response.status);
+    console.log('searchGames 接口状态说明：', response.statusText);
     
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      throw new Error(`HTTP error! status: ${response.status}`);
     } else {
       const data = await response.json();
-      return {
-        success: true,
-        data: data.map((game: any) => ({
-          id: game.id,
-          title: cleanTitle(game.title),
-          image: game.image,
-          author: game.author.username,
-          views: formatNumber(game.stats.views),
-          loves: formatNumber(game.stats.loves),
-          favorites: formatNumber(game.stats.favorites)
-        }))
-      }
+      
+      // 转换数据格式
+      const formattedGames: Game[] = data.map((game: any) => ({
+        id: game.id,
+        title: cleanTitle(game.title),
+        image: game.image,
+        author: game.author.username,
+        views: formatNumber(game.stats.views),
+        loves: formatNumber(game.stats.loves),
+        favorites: formatNumber(game.stats.favorites)
+      }));
+  
+      const result = { success: true, data: formattedGames }
+    
+      // 存入缓存
+      await cache.set('search', '0', result, undefined, query)
+      return result
+
     }
 
   } catch (error) {
-    console.error('Error searching games:', error);
-    return {
-      success: false,
-      error: 'search failed'
-    };
+    console.error('searchGames 失败 error：', error);
+    const cachedData = await cache.get('search', '0', undefined, query)
+    return cachedData || { success: false, error: 'search failed' }
   }
 }
 
 
 // 根据slug获取游戏详情
 export async function getGameBySlug(slug: string) {
+  const cachedData = await cache.get('game', slug)
+  if (cachedData) return cachedData
+
   try {
-    const response = await fetch(
-      `https://api.scratch.mit.edu/projects/${slug}`,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        next: { revalidate: 3600 }
-      }
+    const url = `https://api.scratch.mit.edu/projects/${slug}`
+    const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+      }}
     );
 
     if (!response.ok) {
-      throw new Error('Failed to get game details');
+      throw new Error(`Failed to get game details: ${response.status}`);
     }
 
     const game = await response.json();
-
-    return {
+    const gameData = {
       id: game.id,
       title: cleanTitle(game.title),
       description: game.description,
@@ -187,29 +203,33 @@ export async function getGameBySlug(slug: string) {
       favorites: formatNumber(game.stats.favorites),
       url: `https://scratch.mit.edu/projects/${game.id}/embed`,
       tags: game.tags || []
-    };
+    }
+
+    await cache.set('game', slug, gameData)
+    return gameData as Game
   } catch (error) {
-    console.error('Failed to get game details:', error);
-    return null;
+    console.error('读取游戏详情 details 失败，error：', error);
+    const cachedData = await cache.get('game', slug)
+    return cachedData as Game
   }
 }
 
 // 获取相关游戏
 export async function getRelatedGames(slug: string) {
   try {
+    const cachedData = await cache.get('related', slug)
+    if (cachedData) return cachedData
+
     // 先获取当前游戏信息
-    const currentGame = await getGameBySlug(slug);
+    const currentGame = await getGameBySlug(slug) as Game | null;
     if (!currentGame) return [];
 
     // 获取同作者的其他游戏
-    const response = await fetch(
-      `https://api.scratch.mit.edu/users/${currentGame.author}/projects`,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        next: { revalidate: 3600 }
-      }
+    const url = `https://api.scratch.mit.edu/users/${currentGame.author}/projects`
+    const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+      }}
     );
 
     if (!response.ok) {
@@ -219,7 +239,7 @@ export async function getRelatedGames(slug: string) {
     const games = await response.json();
 
     // 转换数据格式并过滤掉当前游戏
-    return games
+    const formattedGames: Game[] = games
       .filter((game: any) => game.id.toString() !== slug)
       .map((game: any) => ({
         id: game.id,
@@ -234,8 +254,13 @@ export async function getRelatedGames(slug: string) {
         url: `https://scratch.mit.edu/projects/${game.id}/embed`
       }))
       .slice(0, 5); // 只返回前5个相关游戏
+
+      const relatedGames = formattedGames
+      await cache.set('related', slug, relatedGames)
+      return relatedGames
   } catch (error) {
-    console.error('Failed to get related games:', error);
-    return [];
+    console.error('读取相关游戏失败，error：', error);
+    const cachedData = await cache.get('related', slug)
+    return cachedData || []
   }
 }
