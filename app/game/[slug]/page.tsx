@@ -7,6 +7,7 @@ import { siteConfig } from "@/config/site";
 type Props = Promise<{
   slug: string;
   prepage?: string;
+  title?: string;
 }>
 
 interface breadcrumbItem {
@@ -15,15 +16,14 @@ interface breadcrumbItem {
 }
 
 // 定义 generateMetadata 函数
-export async function generateMetadata(props: { params: Props } ) {
-  const params = await props.params;
-  const game = await getGameBySlug(params.slug) as Game;
-
+export async function generateMetadata(props: { searchParams: Props } ) {
+  const searchParams = await props.searchParams;
+  console.log('generateMetadata 参数 searchParams', searchParams)
   return {
-    title: `ScratchGames.info - ${game.title}`,
+    title: `ScratchGames.info - ${searchParams.title}`,
     description: 'Play the best free online scratch games on ScratchGames.info. No registration required!',
     alternates: {
-      canonical: `${siteConfig.url}/game/${game.id}`,
+      canonical: `${siteConfig.url}/game/${searchParams.title}`,
     },
   };
 }
@@ -34,7 +34,7 @@ export default async function GamePage(props: { params: Props, searchParams: Pro
   console.log('GamePage 参数 params', params)
   console.log('GamePage 参数 searchParams', searchParams)
   const game = await getGameBySlug(params.slug) as Game;
-  const relatedGames = await getRelatedGames(params.slug) as Game[];
+  const relatedGames = await getRelatedGames(params.slug, game.title);
   let breadLabel = ''
   let breadcrumbItems = [] as breadcrumbItem[];
   
@@ -89,7 +89,9 @@ export default async function GamePage(props: { params: Props, searchParams: Pro
       <GameInfo game={game} />
 
       {/* 相关游戏 */}
-      <RelatedGames games={relatedGames} />
+      {relatedGames.success && relatedGames.data.length > 0 && (
+        <RelatedGames games={relatedGames} />
+      )}
     </div>
   );
 }

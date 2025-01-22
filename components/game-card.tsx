@@ -12,7 +12,13 @@ interface GameCardProps extends Game {
 
 export default function GameCard({ id, title, image, views, loves, favorites, prepage }: GameCardProps) {
   return (
-    <Link href={`/game/${id}${prepage ? `?prepage=${prepage}` : ''}`}>
+    <Link href={{
+      pathname: `/game/${id}`,
+      query: {
+        title: title,
+        prepage: prepage
+      }
+    }}>
       <Card className="cursor-pointer overflow-hidden group hover:shadow-lg transition-shadow w-full max-w-[240px]">
         <CardContent className="p-0">
           <div className="relative w-full" style={{ paddingTop: "75%" }}> {/* 360/480 = 0.75 = 75% */}

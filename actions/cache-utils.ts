@@ -1,5 +1,4 @@
-import fs from 'fs/promises'
-import path from 'path'
+import { createClient } from '@supabase/supabase-js'
 
 interface CacheData<T> {
   data: T
@@ -8,71 +7,100 @@ interface CacheData<T> {
 }
 
 export class CacheManager {
-  private readonly baseDir: string
-  private readonly cacheDir: string
-  private readonly CACHE_DURATION = 24 * 60 * 60 * 1000 // 24小时
+  private readonly supabase
+  private readonly CACHE_DURATION = 24 * 60 * 60 * 1000
 
   constructor() {
-    this.baseDir = process.cwd()
-    this.cacheDir = path.join(this.baseDir, '.cache')
-    this.initializeCacheDirectories()
+    this.supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
   }
 
-  private async initializeCacheDirectories() {
-    const directories = [
-      'games/trending',
-      'games/recent',
-      'games/popular',
-      'games/search',
-      'game',
-      'related'
-    ].map(dir => path.join(this.cacheDir, dir))
-
-    for (const dir of directories) {
-      await fs.mkdir(dir, { recursive: true })
-    }
-  }
-
-  private getCachePath(type: 'games' | 'game' | 'related' | 'search', key: string, mode?: string, gameName?: string): string {
+  private getCacheKey(type: string, key: string, mode?: string, gameName?: string): string {
+    // return `${type}:${mode || ''}:${key}:${gameName || ''}`
     switch (type) {
       case 'games':
-        return path.join(this.cacheDir, 'games', mode || 'trending', `${key}.json`)
-      case 'game':
-        return path.join(this.cacheDir, 'game', `${key}.json`)
-      case 'related':
-        return path.join(this.cacheDir, 'related', `${key}.json`)
+        return `games:${mode}:${key}`
       case 'search':
-        if (!gameName) throw new Error('Game name is required for search cache')
-        return path.join(this.cacheDir, 'games', 'search', gameName, '0.json')
+        return `search:${gameName}:${key}`
+      case 'game':
+        return `game:${key}`
+      case 'related':
+        return `related:${key}`
       default:
-        return path.join(this.cacheDir, `${key}.json`)
+        return `${type}:${key}`
     }
   }
 
   async set<T>(type: 'games' | 'game' | 'related' | 'search', key: string, data: T, mode?: string, gameName?: string): Promise<void> {
+    const cacheKey = this.getCacheKey(type, key, mode, gameName)
     const cacheData: CacheData<T> = {
       data,
       timestamp: Date.now(),
       expiresIn: this.CACHE_DURATION
     }
-    
-    const cachePath = this.getCachePath(type, key, mode, gameName)
-    await fs.writeFile(cachePath, JSON.stringify(cacheData))
+
+    const { error } = await this.supabase
+      .from('cache')
+      .upsert(
+        {
+          cache_key: cacheKey,
+          cache_data: cacheData,
+          timestamp: cacheData.timestamp,
+          expires_in: cacheData.expiresIn
+        },
+        {
+          onConflict: 'cache_key',
+          ignoreDuplicates: false
+        }
+      )
+
+    if (error) {
+      console.error('Cache set error:', error)
+    }
   }
 
   async get<T>(type: 'games' | 'game' | 'related' | 'search', key: string, mode?: string, gameName?: string): Promise<T | null> {
     try {
-      const cachePath = this.getCachePath(type, key, mode, gameName)
-      console.log('读取缓存，缓存路径：', cachePath)
-
-      const content = await fs.readFile(cachePath, 'utf-8')
-      const cache: CacheData<T> = JSON.parse(content)
+      const cacheKey = this.getCacheKey(type, key, mode, gameName)
       
-      // 不检查过期时间，只要有缓存就返回
-      return cache.data
+      const { data, error } = await this.supabase
+        .from('cache')
+        .select('cache_data')
+        .eq('cache_key', cacheKey)
+        .single()
+
+      if (error || !data) {
+        return null
+      }
+
+      const cacheData: CacheData<T> = data.cache_data
+
+      if (Date.now() - cacheData.timestamp > cacheData.expiresIn) {
+        await this.supabase
+          .from('cache')
+          .delete()
+          .eq('cache_key', cacheKey)
+        return null
+      }
+
+      return cacheData.data
     } catch (error) {
-      console.error('缓存读取错误 error：', error)
+      console.error('Cache get error:', error)
       return null
+    }
+  }
+
+  async clear(type: string, mode?: string): Promise<void> {
+    const cacheKey = this.getCacheKey(type, '*', mode)
+    const { error } = await this.supabase
+      .from('cache')
+      .delete()
+      .like('cache_key', `${cacheKey}%`)
+
+    if (error) {
+      console.error('Cache clear error:', error)
     }
   }
 }

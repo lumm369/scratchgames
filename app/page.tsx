@@ -124,12 +124,12 @@ export default async function Home() {
         <div key={section.type} className="mb-8">
           {section.type === 'popular' && (
             <div className="mb-8 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 p-6 text-white">
-              <h2 className="text-2xl font-bold">Popular Games This Month</h2>
+              <h2 className="text-2xl font-bold">Popular Games This Week</h2>
             </div>
           )}
           {section.type === 'trending' && (
             <div className="mb-8 rounded-lg bg-gradient-to-r from-green-400 to-blue-500 p-6 text-white">
-              <h2 className="text-2xl font-bold">Trending Games This Month</h2>
+              <h2 className="text-2xl font-bold">Trending Games This Week</h2>
             </div>
           )}
           {section.type === 'recent' && (
@@ -144,18 +144,6 @@ export default async function Home() {
           </div>
         </div>
       ))}
-
-      {/* // Featured Games - 热带黄橙
-      <h2 className="inline-block text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-orange-500">
-
-      // New Games - 清新青绿
-      <h2 className="inline-block text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-emerald-500">
-
-      // Top Games - 深沉蓝靛
-      <h2 className="inline-block text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-blue-600">
-
-      // Classic Games - 高贵紫红
-      <h2 className="inline-block text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-fuchsia-500 to-purple-600"></h2> */}
     </div>
   );
 }
