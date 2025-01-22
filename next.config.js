@@ -1,5 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // 确保在生产环境禁用 HMR
+  webpack: (config, { dev, isServer }) => {
+    if (!dev) {
+      // 禁用热重载相关的插件
+      config.plugins = config.plugins.filter(
+        (plugin) => plugin.constructor.name !== 'HotModuleReplacementPlugin'
+      );
+    }
+    return config;
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },
