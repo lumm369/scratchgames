@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 import { getBlogPosts } from '@/actions/blog'
 import { getGames } from '@/actions/games'
 
-export default async function GET(): Promise<MetadataRoute.Sitemap> {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 获取所有博客文章
   const { items: posts } = await getBlogPosts()
   const blogUrls = posts.map((post) => ({
