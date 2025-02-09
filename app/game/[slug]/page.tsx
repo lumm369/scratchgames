@@ -16,14 +16,14 @@ interface breadcrumbItem {
 }
 
 // 定义 generateMetadata 函数
-export async function generateMetadata(props: { searchParams: Props } ) {
+export async function generateMetadata(props: { params: Props, searchParams: Props } ) {
+  const params = await props.params;
   const searchParams = await props.searchParams;
-  console.log('generateMetadata 参数 searchParams', searchParams)
   return {
     title: `ScratchGames.info - ${searchParams.title}`,
     description: 'Play the best free online scratch games on ScratchGames.info. No registration required!',
     alternates: {
-      canonical: `${siteConfig.url}/game/${searchParams.title}`,
+      canonical: `${siteConfig.url}/game/${params.slug}`,
     },
   };
 }

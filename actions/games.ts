@@ -47,6 +47,7 @@ function cleanDescription(str: string): string {
     .join(' ')
     .replace(/[|/]+$/, '') // 移除末尾的|和/
     .replace(/\s+/g, ' ') // 替换多个空格为单个空格
+    .replace('#games', ' ')
     .trim();
 }
 

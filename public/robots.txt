@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://scratchgames.info
+
+# Sitemaps
+Sitemap: https://scratchgames.info/sitemap.xml

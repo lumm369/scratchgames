@@ -46,6 +46,7 @@ function cleanTitle(title: string): string {
     .join(' ')
     .replace(/[|/]+$/, '') // 移除末尾的|和/
     .replace(/\s+/g, ' ') // 替换多个空格为单个空格
+    .replace('#games', ' ') // 替换多个空格为单个空格
     .trim();
 }
 function cleanDescription(str: string): string {
@@ -55,6 +56,7 @@ function cleanDescription(str: string): string {
     .join(' ')
     .replace(/[|/]+$/, '') // 移除末尾的|和/
     .replace(/\s+/g, ' ') // 替换多个空格为单个空格
+    .replace('#games', ' ')
     .trim();
 }
 function escapeSqlString(str: string): string {
