@@ -3,11 +3,14 @@ import { getBlogPosts } from '@/actions/blog'
 import { getGames } from '@/actions/games'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://scratchgames.info'
+  const now = new Date().toISOString()
+
   // 获取所有博客文章
   const { items: posts } = await getBlogPosts()
   const blogUrls = posts.map((post) => ({
     url: `https://scratchgames.info/blog/${post.slug}`,
-    lastModified: new Date(post.publishedAt),
+    lastModified: new Date(post.publishedAt).toISOString(),
     changeFrequency: 'weekly' as const,
     priority: 0.6,
   }))
@@ -16,7 +19,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { data: popularGames } = await getGames('popular')
   const popularGameUrls = popularGames.map((game) => ({
     url: `https://scratchgames.info/game/${game.id}`,
-    lastModified: new Date(),
+    lastModified: now,
     changeFrequency: 'daily' as const,
     priority: 0.7, 
   }))
@@ -25,7 +28,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { data: trendingGames } = await getGames('trending')
   const trendingGameUrls = trendingGames.map((game) => ({
     url: `https://scratchgames.info/game/${game.id}`,
-    lastModified: new Date(),
+    lastModified: now,
     changeFrequency: 'daily' as const,
     priority: 0.7, 
   }))
@@ -34,133 +37,133 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticUrls = [
     {
       url: 'https://scratchgames.info',
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'yearly' as const,
       priority: 1,
     },
     {
       url: 'https://scratchgames.info/popular',
-      lastModified: new Date(), 
+      lastModified: now, 
       changeFrequency: 'daily' as const,
       priority: 0.8,
     },
     {
       url: 'https://scratchgames.info/trending',
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'daily' as const,
       priority: 0.8,
     },
     {
       url: 'https://scratchgames.info/recent',
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'daily' as const,
       priority: 0.8,
     },
     {
       url: 'https://scratchgames.info/games/cash-clicker',
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'daily' as const,
       priority: 0.7,
     },
     {
       url: 'https://scratchgames.info/games/chicken',
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'daily' as const,
       priority: 0.7,
     },
     {
       url: 'https://scratchgames.info/games/fnaf',
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'daily' as const,
       priority: 0.7,
     },
     {
       url: 'https://scratchgames.info/games/geometry-dash',
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'daily' as const,
       priority: 0.7,
     },
     {
       url: 'https://scratchgames.info/games/geometry-dash-wave',
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'daily' as const,
       priority: 0.7,
     },
     {
       url: 'https://scratchgames.info/games/getting-over-it',
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'daily' as const,
       priority: 0.7,
     },
     {
       url: 'https://scratchgames.info/games/minecraft',
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'daily' as const,
       priority: 0.7,
     },
     {
       url: 'https://scratchgames.info/games/pen-football',
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'daily' as const,
       priority: 0.7,
     },
     {
       url: 'https://scratchgames.info/games/roblox-clicker',
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'daily' as const,
       priority: 0.7,
     },
     {
       url: 'https://scratchgames.info/games/sprunki',
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'daily' as const,
       priority: 0.7,
     },
     {
       url: 'https://scratchgames.info/blog',
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'weekly' as const,
       priority: 0.7,
     },
     {
       url: 'https://scratchgames.info/about',
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     },
     {
       url: 'https://scratchgames.info/contact',
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     },
     {
       url: 'https://scratchgames.info/cookies',
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     },
     {
       url: 'https://scratchgames.info/help',
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     },
     {
       url: 'https://scratchgames.info/privacy',
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     },
     {
       url: 'https://scratchgames.info/safety',
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     },
     {
       url: 'https://scratchgames.info/terms',
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     },
