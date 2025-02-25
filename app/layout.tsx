@@ -44,6 +44,7 @@ export default function RootLayout({
         />
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2966211794899578"
      crossOrigin="anonymous"></script>
+        <script defer data-domain="scratchgames.info" src="https://click.pageview.click/js/script.js"></script>
       </head>
       <body className={inter.className}>
         <ThemeProvider
