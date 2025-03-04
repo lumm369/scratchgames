@@ -41,6 +41,24 @@ export default async function Recent() {
         <p>Discover the latest Recent games in scratch!</p>
       </div>
       <GameList games={games} prepage='recent' />
+
+      {/* 页面介绍 */}
+      <div className="mb-8 text-center">
+        <h1 className="text-4xl font-bold mb-6 bg-gradient-to-r from-teal-400 to-emerald-500 bg-clip-text text-transparent">
+          Latest Scratch Games
+        </h1>
+        <div className="prose prose-lg max-w-4xl mx-auto text-gray-600">
+          <p className="mb-4">
+            Stay up-to-date with the newest additions to our Scratch games collection. Our recent games section showcases the latest creations from talented Scratch developers, bringing you fresh gaming experiences daily. From innovative platformers to creative remakes, these new Scratch games represent the cutting edge of community development.
+          </p>
+          <p className="mb-4">
+            Discover brand new Minecraft adventures, the latest Geometry Dash levels, and fresh interpretations of popular gaming concepts. Each day brings exciting new Scratch games to explore, with emerging creators pushing the boundaries of what&apos;s possible on the platform.
+          </p>
+          <p className="mb-4">
+            Our recent games collection is continuously updated with the newest releases, ensuring you&apos;re always among the first to experience the latest Scratch games. Whether you&apos;re seeking innovative gameplay mechanics or fresh takes on classic genres, our newest additions offer something exciting for every player.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

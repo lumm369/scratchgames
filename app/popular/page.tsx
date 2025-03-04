@@ -41,6 +41,24 @@ export default async function Popular() {
         <p>Discover the latest popular games in scratch!</p>
       </div>
       <GameList games={games} prepage='popular' />
+
+      {/* Page Introduction */}
+      <div className="mb-8 text-center">
+        <h1 className="text-4xl font-bold mb-6 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          Popular Scratch Games
+        </h1>
+        <div className="prose prose-lg max-w-4xl mx-auto text-gray-600">
+          <p className="mb-4">
+            Explore our handpicked collection of the most popular Scratch games, featuring top-rated creations that have captivated players worldwide. From innovative Minecraft remakes and challenging Geometry Dash levels to engaging Roblox-inspired experiences, these Scratch games showcase the best of community creativity.
+          </p>
+          <p className="mb-4">
+            Our popular games section highlights titles that consistently receive high engagement, including beloved FNAF fan games, addictive Clicker adventures, and unique Sprunki experiences. Each game is carefully selected based on player feedback, gameplay quality, and creative innovation within the Scratch platform.
+          </p>
+          <p className="mb-4">
+            Updated weekly, this collection represents the most engaging Scratch games that have earned their place through outstanding gameplay mechanics, creative design, and community appreciation. Whether you&apos;re seeking arcade-style challenges, platformer adventures, or innovative game concepts, you&apos;ll find the highest-rated Scratch games right here.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
